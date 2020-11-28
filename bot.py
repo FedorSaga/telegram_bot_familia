@@ -1,5 +1,6 @@
 import config
 import telebot
+#test
 
 def list_add(thing):
     myfile = open('shopping.txt', 'a')
