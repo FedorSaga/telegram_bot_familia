@@ -51,7 +51,6 @@ def rem_command(message):
 @bot.message_handler(commands=['show'])
 def show_command(message):
             result = list_show()
-            print(result)
             bot.send_message(message.chat.id, result)
 
 bot.polling()
