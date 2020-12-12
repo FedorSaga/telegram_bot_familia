@@ -1,5 +1,5 @@
 import config
-import telebot
+import telebot #pip3 install pyTelegramBotAPI
 
 def list_add(thing):
     myfile = open('shopping.txt', 'a')
@@ -11,7 +11,12 @@ def list_add(thing):
 def list_show():
     myfile = open('shopping.txt', 'r')
     all_list = ''''''
+    num = 1
     for line in myfile.readlines():
+        all_list = all_list + str(num)
+        all_list = all_list + ')'
+        all_list = all_list + ' '
+        num += 1
         all_list = all_list + line[:-1]
         all_list = all_list + '''
 '''
@@ -28,8 +33,8 @@ def list_rem(line):
     for line in lines:
         newf.write(line)
     newf.close()
-
-bot = telebot.TeleBot(config.token)
+    
+bot = telebot.TeleBot(config.token) #write your bot token into the brackets !!!ATENTION!!! Never share your bot token!!!
 
 shopping = []
 
@@ -47,10 +52,17 @@ def add_command(message):
 @bot.message_handler(commands=['remove'])
 def rem_command(message):
         list_rem(int(message.text[7:])-1)
+        try:
+            bot.send_message(message.chat.id, 'Deleted')
+        except OSError:
+            bot.send_message(message.chat.id, 'Deleted')   
 
 @bot.message_handler(commands=['show'])
 def show_command(message):
             result = list_show()
-            bot.send_message(message.chat.id, result)
+            try:
+                bot.send_message(message.chat.id, result)
+            except OSError:
+                bot.send_message(message.chat.id, result)
 
 bot.polling()
