@@ -1,5 +1,13 @@
 import config
 import telebot #pip3 install pyTelegramBotAPI
+import os
+
+bot = telebot.TeleBot(config.token) #write your bot token into the brackets !!!ATENTION!!! Never share your bot token!!!
+filesize = os.path.getsize('shopping.txt')
+
+def list_clear():
+    myfile = open('shopping.txt', 'w')
+    myfile.close()
 
 def list_add(thing):
     myfile = open('shopping.txt', 'a')
@@ -34,35 +42,44 @@ def list_rem(line):
         newf.write(line)
     newf.close()
     
-bot = telebot.TeleBot(config.token) #write your bot token into the brackets !!!ATENTION!!! Never share your bot token!!!
-
 shopping = []
 
 @bot.message_handler(commands=['start'])
 def start_command(message):
-        try:
-            bot.send_message(message.chat.id, 'Welcome via de familia!')
-        except OSError:
-            bot.send_message(message.chat.id, 'Welcome via de familia!')
+    try:
+        bot.send_message(message.chat.id, 'Welcome via de familia!')
+    except OSError:
+        bot.send_message(message.chat.id, 'Welcome via de familia!')
 
 @bot.message_handler(commands=['add'])
 def add_command(message):
-            list_add(message.text[5:])
+    list_add(message.text[5:])
 
 @bot.message_handler(commands=['remove'])
 def rem_command(message):
-        list_rem(int(message.text[7:])-1)
-        try:
-            bot.send_message(message.chat.id, 'Deleted')
-        except OSError:
-            bot.send_message(message.chat.id, 'Deleted')   
+    list_rem(int(message.text[7:])-1)
+    try:
+        bot.send_message(message.chat.id, 'Deleted')
+    except OSError:
+        bot.send_message(message.chat.id, 'Deleted')
+
+@bot.message_handler(commands=['clear'])
+def clear_command(message):
+    list_clear()
 
 @bot.message_handler(commands=['show'])
 def show_command(message):
-            result = list_show()
-            try:
-                bot.send_message(message.chat.id, result)
-            except OSError:
-                bot.send_message(message.chat.id, result)
+    result = list_show()
+    filesize = os.path.getsize('shopping.txt')
+    if filesize == 0:
+        try:
+            bot.send_message(message.chat.id, 'Your shopping list is empty!')
+        except OSError:
+            bot.send_message(message.chat.id, 'Your shopping list is empty!')
+    else:
+        try:
+            bot.send_message(message.chat.id, result)
+        except OSError:
+            bot.send_message(message.chat.id, result)
 
 bot.polling()
