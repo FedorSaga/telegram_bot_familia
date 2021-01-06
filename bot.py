@@ -1,12 +1,21 @@
 import config
 import telebot #pip3 install pyTelegramBotAPI
 import os
+import time
 
 bot = telebot.TeleBot(config.token) #write your bot token into the brackets !!!ATENTION!!! Never share your bot token!!!
 filesize = os.path.getsize('shopping.txt')
+ignore_yn = True
+
+ynkey = telebot.types.ReplyKeyboardMarkup(True)
+ynkey.row('Yes', 'No')
+
+basekey = telebot.types.ReplyKeyboardMarkup(True)
+basekey.row('/show', '/start', '/clear')
 
 def list_clear():
     myfile = open('shopping.txt', 'w')
+    myfile.write('''''')
     myfile.close()
 
 def list_add(thing):
@@ -28,6 +37,7 @@ def list_show():
         all_list = all_list + line[:-1]
         all_list = all_list + '''
 '''
+        myfile.close()
     return all_list
 
 def list_rem(line):
@@ -41,15 +51,13 @@ def list_rem(line):
     for line in lines:
         newf.write(line)
     newf.close()
-    
-shopping = []
 
 @bot.message_handler(commands=['start'])
 def start_command(message):
     try:
-        bot.send_message(message.chat.id, 'Welcome via de familia!')
+        bot.send_message(message.chat.id, 'Welcome via de familia!', reply_markup=basekey)
     except OSError:
-        bot.send_message(message.chat.id, 'Welcome via de familia!')
+        bot.send_message(message.chat.id, 'Welcome via de familia!', reply_markup=basekey)
 
 @bot.message_handler(commands=['add'])
 def add_command(message):
@@ -65,7 +73,12 @@ def rem_command(message):
 
 @bot.message_handler(commands=['clear'])
 def clear_command(message):
-    list_clear()
+    global ignore_yn
+    ignore_yn = False
+    try:
+        bot.send_message(message.chat.id, 'Are you shure you want to erase all your shopping list?', reply_markup=ynkey)
+    except OSError:
+        bot.send_message(message.chat.id, 'Are you shure you want to erase all your shopping list?', reply_markup=ynkey)
 
 @bot.message_handler(commands=['show'])
 def show_command(message):
@@ -81,5 +94,25 @@ def show_command(message):
             bot.send_message(message.chat.id, result)
         except OSError:
             bot.send_message(message.chat.id, result)
+
+@bot.message_handler(content_types=["text"])        
+def anwser_message(message):
+    global ignore_yn
+    if ignore_yn == False:
+        if message.text == 'Yes':
+            try:
+                bot.send_message(message.chat.id, 'Ok, I erased all your shopping list!', reply_markup=basekey)
+                list_clear()
+            except OSError:
+                bot.send_message(message.chat.id, 'Ok, I erased all your shopping list!', reply_markup=basekey)
+                list_clear()
+
+        elif message.text == 'No':
+            try:
+                bot.send_message(message.chat.id, 'Ok, I left your shopping list how it was!', reply_markup=basekey)
+            except OSError:
+                bot.send_message(message.chat.id, 'Ok, I left your shopping list how it was!', reply_markup=basekeyy)
+        
+        ignore_yn = True
 
 bot.polling()
