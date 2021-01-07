@@ -4,7 +4,6 @@ import os
 import time
 
 bot = telebot.TeleBot(config.token) #write your bot token into the brackets !!!ATENTION!!! Never share your bot token!!!
-filesize = os.path.getsize('shopping.txt')
 ignore_yn = True
 
 ynkey = telebot.types.ReplyKeyboardMarkup(True)
@@ -40,7 +39,7 @@ def list_show():
         myfile.close()
     return all_list
 
-def list_rem(line):
+def list_rem(line):   
     myfile = open('shopping.txt', 'r')
     lines = myfile.readlines()
     myfile.close()
@@ -65,11 +64,19 @@ def add_command(message):
 
 @bot.message_handler(commands=['remove'])
 def rem_command(message):
-    list_rem(int(message.text[7:])-1)
-    try:
-        bot.send_message(message.chat.id, 'Deleted')
-    except OSError:
-        bot.send_message(message.chat.id, 'Deleted')
+    myfile = open('shopping.txt', 'r')
+    if str(myfile).count('''
+''') < int(message.text[7:]):
+        try:
+            bot.send_message(message.chat.id, 'This line does not exist!')
+        except OSError:
+            bot.send_message(message.chat.id, 'This line does not exist!')
+    else:
+        list_rem(int(message.text[7:])-1)
+        try:
+            bot.send_message(message.chat.id, 'Deleted')
+        except OSError:
+            bot.send_message(message.chat.id, 'Deleted')
 
 @bot.message_handler(commands=['clear'])
 def clear_command(message):
@@ -111,7 +118,7 @@ def anwser_message(message):
             try:
                 bot.send_message(message.chat.id, 'Ok, I left your shopping list how it was!', reply_markup=basekey)
             except OSError:
-                bot.send_message(message.chat.id, 'Ok, I left your shopping list how it was!', reply_markup=basekeyy)
+                bot.send_message(message.chat.id, 'Ok, I left your shopping list how it was!', reply_markup=basekey)
         
         ignore_yn = True
 
